@@ -18,13 +18,13 @@ public class ProductService {
     // 멤버 변수 선언
     private final ProductRepository productRepository;
 
-    public List<Product> getProducts() throws SQLException {
+    public List<Product> getAllProducts() throws SQLException {
         return productRepository.findAll();
     }
 
-    public Product createProduct(ProductRequestDto requestDto) throws SQLException {
+    public Product createProduct(ProductRequestDto requestDto, Long userId) throws SQLException {
         // 요청받은 DTO 로 DB에 저장할 객체 만들기
-        Product product = new Product(requestDto);
+        Product product = new Product(requestDto, userId);
         productRepository.save(product);
         return product;
     }
@@ -37,5 +37,10 @@ public class ProductService {
         int myPrice = requestDto.getMyprice();
         product.updateMyPrice(myPrice);
         return product;
+    }
+
+    // 회원 ID 로 등록된 모든 상품 조회
+    public List<Product> getProducts(Long userId) {
+        return productRepository.findAllByUserId(userId);
     }
 }
