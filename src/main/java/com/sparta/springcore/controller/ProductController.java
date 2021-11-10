@@ -6,6 +6,7 @@ import com.sparta.springcore.dto.ProductRequestDto;
 import com.sparta.springcore.security.UserDetailsImpl;
 import com.sparta.springcore.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,6 +43,7 @@ public class ProductController {
     }
 
     // (관리자용) 등록된 모든 상품 목록 조회
+    @Secured("ROLE_ADMIN")
     @GetMapping("/api/admin/products")
     public List<Product> getAllProducts() throws SQLException {
         return productService.getAllProducts();
