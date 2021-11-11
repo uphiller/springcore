@@ -1,15 +1,17 @@
 package com.sparta.springcore.controller;
 
 import com.sparta.springcore.domain.Folder;
+import com.sparta.springcore.domain.Product;
 import com.sparta.springcore.dto.FolderCreateRequestDto;
+import com.sparta.springcore.exception.ApiException;
 import com.sparta.springcore.security.UserDetailsImpl;
 import com.sparta.springcore.service.FolderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -30,5 +32,31 @@ public class FolderController {
     public List<Folder> addFolders(@RequestBody FolderCreateRequestDto folderCreateRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         List<String> folderNames = folderCreateRequestDto.getFolderNames();
         return folderService.createFolders(folderNames, userDetails.getUser());
+    }
+
+    // 회원이 등록한 폴더 내 모든 상품 조회
+    @GetMapping("/api/folders/{folderId}/products")
+    public Page<Product> getProductsOnFolder(@PathVariable("folderId") Long folderId,
+                                             @RequestParam("page") int page,
+                                             @RequestParam("size") int size,
+                                             @RequestParam("sortBy") String sortBy,
+                                             @RequestParam("isAsc") boolean isAsc,
+                                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        page = page - 1;
+        return folderService.getProductsOnFolder(userDetails.getUser(), page, size, sortBy, isAsc, folderId);
+    }
+
+    @ExceptionHandler({ IllegalArgumentException.class })
+    public ResponseEntity<Object> handle(IllegalArgumentException ex) {
+        ApiException apiException = new ApiException(
+                ex.getMessage(),
+                // HTTP 400 -> Client Error
+                HttpStatus.BAD_REQUEST
+        );
+
+        return new ResponseEntity<>(
+                apiException,
+                HttpStatus.BAD_REQUEST
+        );
     }
 }
