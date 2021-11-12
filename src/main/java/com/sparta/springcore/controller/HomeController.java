@@ -20,9 +20,6 @@ public class HomeController {
 
     @GetMapping("/")
     public String home(Model model, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        List<Folder> folders = folderService.getFolders(userDetails.getUser());
-        model.addAttribute("folders", folders);
-        model.addAttribute("username", userDetails.getUsername());
         return "index";
     }
 
